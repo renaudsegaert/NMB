@@ -146,14 +146,7 @@ ylabel('$|I-Q^{*}Q|$','Interpreter','Latex')
 
 
 
-%OPDRACHT 12
-%
-%
-
-
-
 %% Opgave 2
-% TODO: Deal with divergence of the maximum eigen value.
 
 clear
 close all
