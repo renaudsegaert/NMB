@@ -2,8 +2,9 @@
 % gram schmidt https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/768d6fe735722547c3f5e74824532c53_MIT18_06S10_gramschmidtmat.pdf
 % gram schmidt https://www.math.ucla.edu/~yanovsky/Teaching/Math151B/handouts/GramSchmidt.pdf
 % https://arnold.hosted.uark.edu/NLA/Pages/CGSMGS.pdf
-%https://math.stackexchange.com/questions/4425346/how-to-prove-that-the-sum-of-two-random-high-dimensional-vectors-is-close-to-s
+% https://math.stackexchange.com/questions/4425346/how-to-prove-that-the-sum-of-two-random-high-dimensional-vectors-is-close-to-s
 
+%% Opgave 1
 
 %OPDRACHT 3
 B = randn(200,100);
@@ -173,6 +174,49 @@ xas = (1:1:50);
 figure
 plot(xas,Diffkkl,xas,Diffkmod,xas,Diffkher)
 title('norm(I-Q(transposed)*Q')
+
+%% Opgave 2
+% TODO: Deal with divergence of the maximum eigen value.
+
+clear
+close all
+hold on
+
+nb_eigenvalues_to_calculate = 6;
+k = 1000;
+A = sprand(k,k, 1/k);
+maxA = max(eigs(A, nb_eigenvalues_to_calculate));
+v = rand(k,1);
+
+% plot(real(maxA), imag(maxA), 'gO');
+
+for m=1:100
+    disp(m);
+    [V, H] = Arnoldi(A,v,m);
+    sh = size(H);
+    
+    eigenvalues_H = eigs(H(1:m,:));
+    for j=1:length(eigenvalues_H)
+        current_eigenvalue = eigenvalues_H(j);
+        plot(m, real(current_eigenvalue), 'g*');
+    end
+end
+
+eigenvalues_A = eigs(A);
+for j=1:length(eigenvalues_A)
+    current_eigenvalue = eigenvalues_A(j);
+    plot(m+1, real(current_eigenvalue), 'rO');
+end
+
+eigs(A)
+eigs(H(1:sh(1)-1,:))
+
+hold off
+title("Ritzwaarden per Iteratiestap");
+xlabel('Iteratiestap');
+ylabel('Real');
+
+
 
 
 
