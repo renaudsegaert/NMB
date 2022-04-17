@@ -8,9 +8,7 @@
 
 %OPDRACHT 3
 B = randn(200,100);
-
-[Q,R] = qr(B,0);
-
+[Q,~] = qr(B,0);
 D = zeros(100);
 for i=1:100
    D(i,i) = 2^(1-i);
@@ -18,20 +16,15 @@ end
 V = zeros(100,100);
 for i = 1:100
     V(i,i) = 1;
-    V(1,i)=1;
-    
+    V(1,i)=1;    
 end
-
 A = Q*D*V;
 
-% Antwoord: stel A = Q*D*V --> a1 = q1,  ai = (qi*2^(1-i))+q1
 
 %OPDRACHT 4
-
 [Qkl , Rkl] = klGS(A);
 [Qmod , Rmod] = modGS(A);
-[Qher , Rher] = herGS(A);
-a = 100; 
+a = 70; 
 Diffkl = zeros(a,1);
 for i = 1:a
     Diffkl(i,1) = norm(Q(:,i)-Qkl(:,i))  ;
@@ -40,12 +33,20 @@ Diffmod = zeros(a,1);
 for i = 1:a
     Diffmod(i,1) = norm(Q(:,i)-Qmod(:,i))  ;
 end
-Diffher = zeros(a,1);
-for i = 1:a
-    Diffher(i,1) = norm(Q(:,i)-Qher(:,i))  ;
-end
+xas = (1:1:a);
+figure
+p = semilogy(xas,Diffkl,xas,Diffmod);
+title('Error between Q and calculated Q from algorithms');
+xlabel('$q_i$','Interpreter','Latex') 
+ylabel('$ |\tilde{q_i}-q_i|_2$','Interpreter','Latex') 
 
 
+
+
+
+
+
+%OPDRACHT 5
 Difftheoriemod = zeros(a,1);
 for i = 1:a
     b = eps*2^(i-1)*Q(:,1);
@@ -61,15 +62,34 @@ for i = 1:a
     
     Difftheoriekl(i,1) = norm( -1*(2^(i-1)*eps*Q(:,1))+ 2^(i-1)*summatie);     
 end
-Difftheoriemodecht = zeros(a,1);
+xas = (1:1:a);
+figure
+p = semilogy(xas,Diffkl,xas,Diffmod,xas,Difftheoriekl,xas,Difftheoriemod);
+title('Error Q and ~Q in theory and in practice');
+xlabel('$q_i$','Interpreter','Latex') 
+ylabel('$ |\tilde{q_i}-q_i|_2$','Interpreter','Latex')
 
+
+
+
+%OPDRACHT 7
+Difftheoriemodecht = zeros(a,1);
 for i = 1:a
     b = norm(((Q(:,i)/2^(i-1))-eps*Q(:,1)));
     c = ((Q(:,i)/2^(i-1))-eps*Q(:,1));
     Z = c/b;
     Difftheoriemodecht(i,1) = norm(Q(:,i)-Z);    
 end
+xas = (1:1:a);
+figure
+p = semilogy(xas,Diffmod,xas,Difftheoriemodecht);
+title('Error Q and ~Q in theory and in practice for big n');
+xlabel('$q_i$','Interpreter','Latex') 
+ylabel('$ |\tilde{q_i}-q_i|_2$','Interpreter','Latex')
 
+
+
+%OPDRACHT 8
 Difforthogonaliteitkl = zeros(a,1);
 for i = 1:a
     Difforthogonaliteitkl(i,1) = norm(eye(i)-(Qkl(:,1:i)'*Qkl(:,1:i)));
@@ -77,90 +97,38 @@ end
 Difforthogonaliteitmod = zeros(a,1);
 for i = 1:a
     Difforthogonaliteitmod(i,1) = norm(eye(i)-(Qmod(:,1:i)'*Qmod(:,1:i)));
-    
 end
-
-
-    
-
 xas = (1:1:a);
 figure
+p = semilogy(xas,Diffkl,xas,Diffmod,xas,Difforthogonaliteitkl,xas,Difforthogonaliteitmod);
+title('Loss of orthogonality from classical gram-schmidt and modified gram-schmidt');
+xlabel('$q_i$','Interpreter','Latex') 
+ylabel('$ |I-\tilde{Q_i}^{*}\tilde{Q_i}|_2$','Interpreter','Latex')
 
 
-plot(xas,Diffkl,xas,Diffmod,xas,Diffher)
-title('Error between Q and ~Q')
-ylim([-0.2 1.8])
-% Antwoord: DE stijging is exponentieel, fout tussen Q en ~Q stijgt eerst
-% zachtjes maar met elke stap stijgt hij sneller en sneller tot het het
-% punt van afvlakking heeft bereikt.
-
-%OPDRACHT 5
-% foutenanalyse klassieke Gramm schmidt:
-
-% ~q1 ? q1
-
-% ã2 ? a2 - <a2,~q1>*~q1
-% ã2 ? q1 + q2/2 -(1+?1)*q1
-% ã2 = q2/2 -?1*q1
-% ~q2 = q2 - 2*?1*q1
-
-%ã3 = a3 - <a3,~q1>*~q1 - <a3,~q2>*~q2
-%ã3 = q1 + q3/4 - (1 + ?2)*q1 - (-2*?1)*q2
-%ã3 = q3/4 - ?2*q1 + 2*?1*q2
-%~q3 = q3 - 4*?2*q1 + 8*?1*q2
-
-%~q4 = q4 - 8*?1*q1 + 16*?2*q2+24*?3*q3
-% voor n > 2 
-%~qn = qn +       2^(n-1)*((-?1*q1)+summation(from i=2 to i =n (2^(n-1)*?i*q1))
-
-% foutenanalyse aangepaste Gramm schmidt:
-
-%~qn = qn - (2^(n-1)*?n*q1)
-
-
-%OPDRACHT 6
-%
-
-%OPDRACHT 7
-% Voor grote n is (qn/2^(n-1))-?n*q1 niet meer ongeveer gelijk aan
-% (qn/2^(n-1)), Voor de norm van ãn mogen we dus niet zomaar 1/2^(n-1) pakken
-
-%~qn = ((qn/2^(n-1))-?n*q1)/norm(((qn/2^(n-1))-?n*q1))
-% Deze schatting komt in de buurt van de experimentele waarden, beide
-% stijgen exponentieel rond het zelfde punt en vlakken af naar het einde
-% toe
-
-%OPDRACHT 8
-%Wanneer Qj perfect orthogonaal is dan zou Qj'*Qj gelijk moeten zijn aan de
-%eenheidsmatrix, om het verschil tussen orthogonaliteit te meten bekijken
-%we dus het verschil tss Qj'*Qj en de eenheidsmatrix
 
 %OPDRACHT 9
 B = randn(200,50);
-
-[Q,R] = qr(B,0);
-
-D = diag(2.^linspace(0,3,50));
-V = eye(50);
+C = randn(50,50);
+[V,~] = qr(C);
+[Q,~] = qr(B,0);
+D = diag(2.^linspace(0,1,50));
 A = Q*D*V;
-[Qkl,Rkl] = klGS(A);
-[Qmod,Rmod] = modGS(A);
-[Qher,Rher] = herGS(A);
-%condition of a matrix is the highest singular value divided by the lowest
-%singular value, the highest value is 2^k and the lowest is always 1 so the
-%condition is equal to 2^k
+disp(cond(A));
+
+
 
 %OPDRACHT 10
 Diffkkl = zeros(50,1);
 Diffkmod = zeros(50,1);
 Diffkher = zeros(50,1);
-
+B = randn(200,50);
+[Q,R] = qr(B,0);
+C = randn(50,50);
+[V,~] = qr(C);
 for i = 1:50
-    [Q,R] = qr(B,0);
-
     D = diag(2.^linspace(0,i,50));
-    A = Q*D*V;
-    disp(cond(A))
+    A = Q*D*V;    
     [Qkl,Rkl] = klGS(A);
     [Qmod,Rmod] = modGS(A);
     [Qher,Rher] = herGS(A);
@@ -168,12 +136,21 @@ for i = 1:50
     Diffkmod(i,1) = norm(eye(50)-(Qmod'*Qmod)); 
     Diffkher(i,1) = norm(eye(50)-(Qher'*Qher));
 end
-
-
 xas = (1:1:50);
 figure
-plot(xas,Diffkkl,xas,Diffkmod,xas,Diffkher)
-title('norm(I-Q(transposed)*Q')
+semilogy(xas,Diffkkl,xas,Diffkmod,xas,Diffkher)
+title('Loss of orthogonality depending on k','Interpreter','Latex')
+xlabel('k','Interpreter','Latex') 
+ylabel('$|I-Q^{*}Q|$','Interpreter','Latex')
+
+
+
+
+%OPDRACHT 12
+%
+%
+
+
 
 %% Opgave 2
 % TODO: Deal with divergence of the maximum eigen value.
