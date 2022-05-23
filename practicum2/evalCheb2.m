@@ -6,7 +6,6 @@ function prod = evalCheb2(a, x)
    for j=1:na
        T(:, j) = chebyshevT(j-1, x);
    end
-
     prod = T * a;
 end
 
